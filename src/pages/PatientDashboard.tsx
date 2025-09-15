@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 const PatientDashboard = () => {
-  const [activeTab, setActiveTab] = useState("daily");
+  const [activeTab, setActiveTab] = useState("overview");
   const [mealStatus, setMealStatus] = useState({
     breakfast: false,
     lunch: false,
@@ -124,138 +124,181 @@ const PatientDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="daily" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            Today
+            Overview
           </TabsTrigger>
-          <TabsTrigger value="weekly" className="flex items-center gap-2">
+          <TabsTrigger value="meals" className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            Meal Plan
+          </TabsTrigger>
+          <TabsTrigger value="wellness" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Wellness Log
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            AI Insights
+          </TabsTrigger>
+          <TabsTrigger value="progress" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            Weekly
-          </TabsTrigger>
-          <TabsTrigger value="monthly" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Monthly
+            Progress
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="daily" className="space-y-6">
-          {/* Daily Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Calories Card */}
-            <Card className="shadow-soft">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  Daily Calories
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold">{dailyGoals.calories.consumed}</span>
-                    <span className="text-sm text-muted-foreground">/ {dailyGoals.calories.target}</span>
-                  </div>
-                  <Progress value={getMacroPercentage(dailyGoals.calories.consumed, dailyGoals.calories.target)} className="h-2" />
-                  <p className="text-xs text-muted-foreground">
-                    {dailyGoals.calories.target - dailyGoals.calories.consumed} remaining
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Macros Card */}
-            <Card className="shadow-soft">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-accent" />
-                  Macros Balance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span>Protein</span>
-                    <span>{dailyGoals.protein.consumed}g</span>
-                  </div>
-                  <Progress value={getMacroPercentage(dailyGoals.protein.consumed, dailyGoals.protein.target)} className="h-1" />
-                  
-                  <div className="flex justify-between items-center text-xs">
-                    <span>Carbs</span>
-                    <span>{dailyGoals.carbs.consumed}g</span>
-                  </div>
-                  <Progress value={getMacroPercentage(dailyGoals.carbs.consumed, dailyGoals.carbs.target)} className="h-1" />
-                  
-                  <div className="flex justify-between items-center text-xs">
-                    <span>Fat</span>
-                    <span>{dailyGoals.fat.consumed}g</span>
-                  </div>
-                  <Progress value={getMacroPercentage(dailyGoals.fat.consumed, dailyGoals.fat.target)} className="h-1" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Dosha Balance Card */}
-            <Card className="shadow-soft">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <ArrowUpCircle className="h-4 w-4 text-warm" />
-                  Dosha Balance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-warm">{doshaBalance.dominant}</div>
-                    <p className="text-xs text-muted-foreground">Dominant today</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span>Vata</span>
-                      <span>{doshaBalance.vata}%</span>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Today's Summary */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Today's Summary</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Calories Card */}
+              <Card className="shadow-soft">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
+                    Daily Calories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold">{dailyGoals.calories.consumed}</span>
+                      <span className="text-sm text-muted-foreground">/ {dailyGoals.calories.target}</span>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span>Pitta</span>
-                      <span>{doshaBalance.pitta}%</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span>Kapha</span>
-                      <span>{doshaBalance.kapha}%</span>
-                    </div>
+                    <Progress value={getMacroPercentage(dailyGoals.calories.consumed, dailyGoals.calories.target)} className="h-2" />
+                    <p className="text-xs text-muted-foreground">
+                      {dailyGoals.calories.target - dailyGoals.calories.consumed} remaining
+                    </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Hydration Card */}
-            <Card className="shadow-soft">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-blue-500" />
-                  Hydration
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold">{dailyGoals.water.consumed}</span>
-                    <span className="text-sm text-muted-foreground">/ {dailyGoals.water.target} glasses</span>
+              {/* Macros Card */}
+              <Card className="shadow-soft">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-accent" />
+                    Macros Balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span>Protein</span>
+                      <span>{dailyGoals.protein.consumed}g</span>
+                    </div>
+                    <Progress value={getMacroPercentage(dailyGoals.protein.consumed, dailyGoals.protein.target)} className="h-1" />
+                    
+                    <div className="flex justify-between items-center text-xs">
+                      <span>Carbs</span>
+                      <span>{dailyGoals.carbs.consumed}g</span>
+                    </div>
+                    <Progress value={getMacroPercentage(dailyGoals.carbs.consumed, dailyGoals.carbs.target)} className="h-1" />
+                    
+                    <div className="flex justify-between items-center text-xs">
+                      <span>Fat</span>
+                      <span>{dailyGoals.fat.consumed}g</span>
+                    </div>
+                    <Progress value={getMacroPercentage(dailyGoals.fat.consumed, dailyGoals.fat.target)} className="h-1" />
                   </div>
-                  <Progress value={getMacroPercentage(dailyGoals.water.consumed, dailyGoals.water.target)} className="h-2" />
-                  <div className="flex gap-1">
-                    {[...Array(8)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-3 h-6 rounded-sm ${i < dailyGoals.water.consumed ? 'bg-blue-500' : 'bg-muted'}`}
-                      />
-                    ))}
+                </CardContent>
+              </Card>
+
+              {/* Dosha Balance Card */}
+              <Card className="shadow-soft">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <ArrowUpCircle className="h-4 w-4 text-warm" />
+                    Dosha Balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-warm">{doshaBalance.dominant}</div>
+                      <p className="text-xs text-muted-foreground">Dominant today</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span>Vata</span>
+                        <span>{doshaBalance.vata}%</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span>Pitta</span>
+                        <span>{doshaBalance.pitta}%</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span>Kapha</span>
+                        <span>{doshaBalance.kapha}%</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              {/* Hydration Card */}
+              <Card className="shadow-soft">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Droplets className="h-4 w-4 text-blue-500" />
+                    Hydration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold">{dailyGoals.water.consumed}</span>
+                      <span className="text-sm text-muted-foreground">/ {dailyGoals.water.target} glasses</span>
+                    </div>
+                    <Progress value={getMacroPercentage(dailyGoals.water.consumed, dailyGoals.water.target)} className="h-2" />
+                    <div className="flex gap-1">
+                      {[...Array(8)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-3 h-6 rounded-sm ${i < dailyGoals.water.consumed ? 'bg-blue-500' : 'bg-muted'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
-          {/* Today's Meal Plan */}
+          {/* Quick Actions */}
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ArrowUpCircle className="h-5 w-5 text-primary" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button variant="outline" className="h-16 flex-col gap-2">
+                  <Plus className="h-5 w-5" />
+                  Log Meal
+                </Button>
+                <Button variant="outline" className="h-16 flex-col gap-2">
+                  <Droplets className="h-5 w-5" />
+                  Add Water
+                </Button>
+                <Button variant="outline" className="h-16 flex-col gap-2">
+                  <Activity className="h-5 w-5" />
+                  Log Exercise
+                </Button>
+                <Button variant="outline" className="h-16 flex-col gap-2">
+                  <Smile className="h-5 w-5" />
+                  Update Mood
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="meals" className="space-y-6">
+
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -343,55 +386,148 @@ const PatientDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Daily Tracking */}
+        <TabsContent value="wellness" className="space-y-6">
+
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-accent" />
+                Daily Wellness Tracking
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Mood & Energy Level</label>
+                    <div className="flex gap-2">
+                      {['😴', '😐', '😊', '😄', '🚀'].map((emoji, i) => (
+                        <button key={i} className="w-12 h-12 rounded-full border hover:bg-muted transition-smooth text-lg">
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">From sluggish to energetic</p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Digestion Quality</label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="How was your digestion?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="heavy">Heavy & Sluggish</SelectItem>
+                        <SelectItem value="normal">Normal & Comfortable</SelectItem>
+                        <SelectItem value="light">Light & Energized</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Sleep Quality (Last Night)</label>
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-6 w-6 text-muted-foreground hover:text-accent cursor-pointer transition-smooth" />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Rate your sleep quality</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Physical Activity</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm" className="justify-start">
+                        <Activity className="h-4 w-4 mr-2" />
+                        Yoga
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start">
+                        <Activity className="h-4 w-4 mr-2" />
+                        Walk
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start">
+                        <Activity className="h-4 w-4 mr-2" />
+                        Gym
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start">
+                        <Activity className="h-4 w-4 mr-2" />
+                        Meditation
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Symptoms (if any)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm" className="justify-start text-xs">
+                        Bloating
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start text-xs">
+                        Fatigue
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start text-xs">
+                        Headache
+                      </Button>
+                      <Button variant="outline" size="sm" className="justify-start text-xs">
+                        Stress
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Daily Reflection</label>
+                <Textarea 
+                  placeholder="How did you feel today? Any observations about food, mood, energy, or symptoms..." 
+                  className="resize-none" 
+                  rows={4} 
+                />
+              </div>
+
+              <Button className="w-full">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Save Today's Log
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-6">
+
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Wellness Log */}
+            {/* Free AI Insights */}
             <Card className="shadow-soft">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-accent" />
-                  Daily Wellness Log
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Basic Insights (Free)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Mood & Energy</label>
-                  <div className="flex gap-2">
-                    {['😴', '😐', '😊', '😄', '🚀'].map((emoji, i) => (
-                      <button key={i} className="w-10 h-10 rounded-full border hover:bg-muted transition-smooth text-lg">
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
+                <div className="p-4 bg-primary/5 rounded-lg">
+                  <p className="text-sm font-medium text-primary mb-1">Weekly Pattern</p>
+                  <p className="text-xs text-muted-foreground">
+                    You've been consistent with breakfast this week. Great job maintaining your morning routine!
+                  </p>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Digestion Quality</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="How was your digestion?" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="heavy">Heavy & Sluggish</SelectItem>
-                      <SelectItem value="normal">Normal & Comfortable</SelectItem>
-                      <SelectItem value="light">Light & Energized</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="p-4 bg-sage/10 rounded-lg">
+                  <p className="text-sm font-medium text-sage-foreground mb-1">Hydration Reminder</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your water intake drops in the afternoon. Set a 3 PM reminder to stay hydrated.
+                  </p>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Sleep Quality</label>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-6 w-6 text-muted-foreground hover:text-accent cursor-pointer transition-smooth" />
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Notes</label>
-                  <Textarea placeholder="How did you feel today? Any observations about food, mood, or energy..." className="resize-none" rows={3} />
+                <div className="p-4 bg-warm/5 rounded-lg">
+                  <p className="text-sm font-medium text-warm mb-1">Dosha Balance</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your Pitta is slightly elevated. Consider cooling foods and avoid spicy meals after 6 PM.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -414,8 +550,8 @@ const PatientDashboard = () => {
               
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                  AI Wellness Insights
+                  <Sparkles className="h-5 w-5 text-accent" />
+                  Advanced AI Analytics
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 blur-sm">
@@ -444,38 +580,112 @@ const PatientDashboard = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="weekly" className="space-y-6">
-          <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle>Weekly Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>Weekly analytics view</p>
-                  <p className="text-sm">Track your progress over the past 7 days</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <TabsContent value="progress" className="space-y-6">
 
-        <TabsContent value="monthly" className="space-y-6">
-          <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle>Monthly Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>Monthly analytics view</p>
-                  <p className="text-sm">Long-term patterns and achievements</p>
-                </div>
+          {/* Progress Time Tabs */}
+          <Tabs defaultValue="weekly" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="weekly">Weekly</TabsTrigger>
+              <TabsTrigger value="monthly">Monthly</TabsTrigger>
+              <TabsTrigger value="quarterly">Quarterly</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="weekly" className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="shadow-soft">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Weight & Energy Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                        <p>Weekly weight & energy chart</p>
+                        <p className="text-sm">Track your progress over 7 days</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-soft">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Dosha Balance History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <ArrowUpCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                        <p>Weekly dosha balance trends</p>
+                        <p className="text-sm">See how your constitution changes</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Weekly Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="shadow-soft">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-primary">92%</div>
+                    <p className="text-sm text-muted-foreground">Meal Plan Adherence</p>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-soft">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-accent">7.2</div>
+                    <p className="text-sm text-muted-foreground">Avg Daily Water (glasses)</p>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-soft">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-warm">4.2</div>
+                    <p className="text-sm text-muted-foreground">Avg Energy Level</p>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-soft">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-sage-foreground">6</div>
+                    <p className="text-sm text-muted-foreground">Active Days</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="monthly" className="space-y-6">
+              <Card className="shadow-soft">
+                <CardHeader>
+                  <CardTitle>Monthly Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>Monthly analytics view</p>
+                      <p className="text-sm">Long-term patterns and achievements</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="quarterly" className="space-y-6">
+              <Card className="shadow-soft">
+                <CardHeader>
+                  <CardTitle>Quarterly Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>3-month health journey</p>
+                      <p className="text-sm">Track major health improvements</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
