@@ -2,41 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Ayurvedic Diet Management Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Nature-inspired Ayurvedic color palette */
+    --background: 75 25% 96%;
+    --foreground: 155 30% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 155 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 155 30% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Deep forest green primary */
+    --primary: 155 60% 25%;
+    --primary-foreground: 75 25% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm earth secondary */
+    --secondary: 25 35% 85%;
+    --secondary-foreground: 155 30% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Sage muted tones */
+    --muted: 75 20% 92%;
+    --muted-foreground: 155 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Turmeric gold accent */
+    --accent: 45 85% 65%;
+    --accent-foreground: 155 30% 15%;
+
+    /* Terracotta warm tones */
+    --warm: 15 65% 55%;
+    --warm-foreground: 0 0% 100%;
+
+    /* Healing sage */
+    --sage: 75 30% 75%;
+    --sage-foreground: 155 30% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 75 20% 88%;
+    --input: 75 20% 92%;
+    --ring: 155 60% 25%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Ayurvedic gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(155 60% 25%), hsl(155 50% 35%));
+    --gradient-sage: linear-gradient(180deg, hsl(75 25% 96%), hsl(75 30% 90%));
+    --gradient-earth: linear-gradient(135deg, hsl(25 35% 85%), hsl(45 30% 80%));
+    --gradient-hero: linear-gradient(135deg, hsl(155 45% 30%), hsl(75 40% 40%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(155 60% 25% / 0.1);
+    --shadow-warm: 0 8px 30px hsl(25 35% 55% / 0.15);
+    --shadow-glow: 0 0 40px hsl(45 85% 65% / 0.2);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +126,91 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    background: var(--gradient-sage);
+  }
+}
+
+@layer components {
+  /* Ayurvedic UI Components */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+  
+  .earth-gradient {
+    background: var(--gradient-earth);
+  }
+  
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-warm {
+    box-shadow: var(--shadow-warm);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  /* Mandala decorative element */
+  .mandala-bg {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mandala-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, hsl(45 85% 65% / 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+}
+
+@layer utilities {
+  /* Animation classes */
+  .animate-gentle-bounce {
+    animation: gentle-bounce 2s ease-in-out infinite;
+  }
+  
+  .animate-leaf-float {
+    animation: leaf-float 3s ease-in-out infinite alternate;
+  }
+  
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out forwards;
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes leaf-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes fade-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
   }
 }
