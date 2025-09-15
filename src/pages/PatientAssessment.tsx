@@ -376,9 +376,11 @@ const PatientAssessment = () => {
                         <Button variant="accent">
                           Upgrade to Premium - ₹999/month
                         </Button>
-                        <Button variant="outline">
-                          Continue with Free Plan
-                        </Button>
+                        <Link to="/patient/dashboard">
+                          <Button variant="outline">
+                            Continue with Free Plan
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

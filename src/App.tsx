@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import DietitianOnboarding from "./pages/DietitianOnboarding";
 import DietitianDashboard from "./pages/DietitianDashboard";
 import PatientAssessment from "./pages/PatientAssessment";
+import PatientDashboard from "./pages/PatientDashboard";
 import FoodDatabase from "./pages/FoodDatabase";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +46,14 @@ const App = () => (
             element={
               <ProtectedRoute userType="patient">
                 <PatientAssessment />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/dashboard" 
+            element={
+              <ProtectedRoute userType="patient">
+                <PatientDashboard />
               </ProtectedRoute>
             } 
           />
