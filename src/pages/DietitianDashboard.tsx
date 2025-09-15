@@ -19,12 +19,35 @@ import {
   Settings,
   BarChart3,
   UserPlus,
-  Sparkles
+  Sparkles,
+  LogOut
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const DietitianDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out.",
+      });
+      navigate('/');
+    }
+  };
 
   // Mock data
   const stats = {
@@ -70,7 +93,7 @@ const DietitianDashboard = () => {
             </div>
           </div>
           
-          <nav className="space-y-2">
+          <nav className="space-y-2 mb-8">
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
@@ -86,6 +109,17 @@ const DietitianDashboard = () => {
               </button>
             ))}
           </nav>
+          
+          <div className="border-t border-border pt-4">
+            <Button
+              variant="ghost"
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-4 py-3 justify-start text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-5 w-5" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
 

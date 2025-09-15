@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dietitian_profiles: {
+        Row: {
+          clinic_name: string | null
+          created_at: string
+          id: string
+          license_number: string | null
+          practice_type: string | null
+          preferred_languages: string[] | null
+          qualification: string | null
+          specialization_areas: string[] | null
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          clinic_name?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          practice_type?: string | null
+          preferred_languages?: string[] | null
+          qualification?: string | null
+          specialization_areas?: string[] | null
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          clinic_name?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          practice_type?: string | null
+          preferred_languages?: string[] | null
+          qualification?: string | null
+          specialization_areas?: string[] | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      patient_profiles: {
+        Row: {
+          age: number | null
+          created_at: string
+          gender: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          contact_number: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          location: string | null
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          contact_number?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          location?: string | null
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          contact_number?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          location?: string | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

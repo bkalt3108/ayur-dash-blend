@@ -3,8 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
 import DietitianOnboarding from "./pages/DietitianOnboarding";
 import DietitianDashboard from "./pages/DietitianDashboard";
 import PatientAssessment from "./pages/PatientAssessment";
@@ -21,10 +23,39 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dietitian/onboarding" element={<DietitianOnboarding />} />
-          <Route path="/dietitian/dashboard" element={<DietitianDashboard />} />
-          <Route path="/patient/assessment" element={<PatientAssessment />} />
-          <Route path="/food-database" element={<FoodDatabase />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route 
+            path="/dietitian/onboarding" 
+            element={
+              <ProtectedRoute userType="dietitian">
+                <DietitianOnboarding />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dietitian/dashboard" 
+            element={
+              <ProtectedRoute userType="dietitian">
+                <DietitianDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/assessment" 
+            element={
+              <ProtectedRoute userType="patient">
+                <PatientAssessment />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/food-database" 
+            element={
+              <ProtectedRoute>
+                <FoodDatabase />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

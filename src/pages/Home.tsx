@@ -1,11 +1,79 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Leaf, Users, Database, MessageSquare, BarChart3, Calendar, Sparkles, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Leaf, Users, Database, MessageSquare, BarChart3, Calendar, Sparkles, Star, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/ayurvedic-hero.jpg";
 import mandalaPattern from "@/assets/mandala-pattern.jpg";
 
 const Home = () => {
+  const { isAuthenticated, getUserType, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out.",
+      });
+    }
+  };
+
+  const renderAuthButtons = () => {
+    if (isAuthenticated) {
+      const userType = getUserType();
+      return (
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <Button 
+            variant="hero" 
+            size="lg" 
+            className="px-8 py-4 text-lg shadow-warm hover:shadow-glow transition-bounce"
+            onClick={() => navigate(userType === 'dietitian' ? '/dietitian/dashboard' : '/patient/assessment')}
+          >
+            <Users className="mr-2 h-5 w-5" />
+            Go to {userType === 'dietitian' ? 'Dashboard' : 'Assessment'}
+          </Button>
+          
+          <Button 
+            variant="ghost-light" 
+            size="lg" 
+            className="px-8 py-4 text-lg"
+            onClick={handleSignOut}
+          >
+            <LogOut className="mr-2 h-5 w-5" />
+            Sign Out
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        <Link to="/auth">
+          <Button variant="hero" size="lg" className="px-8 py-4 text-lg shadow-warm hover:shadow-glow transition-bounce">
+            <Users className="mr-2 h-5 w-5" />
+            For Dietitians → Sign Up
+          </Button>
+        </Link>
+        
+        <Link to="/auth">
+          <Button variant="ghost-light" size="lg" className="px-8 py-4 text-lg">
+            <Leaf className="mr-2 h-5 w-5" />
+            For Patients → Sign Up
+          </Button>
+        </Link>
+      </div>
+    );
+  };
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -36,19 +104,7 @@ const Home = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link to="/dietitian/onboarding">
-                <Button variant="hero" size="lg" className="px-8 py-4 text-lg shadow-warm hover:shadow-glow transition-bounce">
-                  <Users className="mr-2 h-5 w-5" />
-                  For Dietitians → Start Onboarding
-                </Button>
-              </Link>
-              
-              <Link to="/patient/assessment">
-                <Button variant="ghost-light" size="lg" className="px-8 py-4 text-lg">
-                  <Leaf className="mr-2 h-5 w-5" />
-                  For Patients → Begin Assessment
-                </Button>
-              </Link>
+              {renderAuthButtons()}
             </div>
           </div>
         </div>
