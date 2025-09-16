@@ -32,24 +32,20 @@ const Home = () => {
     if (isAuthenticated) {
       const userType = getUserType();
       return (
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button 
-            variant="hero" 
             size="lg" 
-            className="px-8 py-4 text-lg shadow-warm hover:shadow-glow transition-bounce"
-            onClick={() => navigate(userType === 'dietitian' ? '/dietitian/dashboard' : '/patient/assessment')}
+            onClick={() => navigate(userType === 'dietitian' ? '/dietitian/dashboard' : '/patient/dashboard')}
+            className="px-8 py-6 text-lg font-semibold"
           >
-            <Users className="mr-2 h-5 w-5" />
-            Go to {userType === 'dietitian' ? 'Dashboard' : 'Assessment'}
+            Go to Dashboard
           </Button>
-          
           <Button 
-            variant="ghost-light" 
+            variant="outline" 
             size="lg" 
-            className="px-8 py-4 text-lg"
             onClick={handleSignOut}
+            className="px-8 py-6 text-lg font-semibold bg-white/20 border-white text-white hover:bg-white hover:text-primary"
           >
-            <LogOut className="mr-2 h-5 w-5" />
             Sign Out
           </Button>
         </div>
@@ -57,20 +53,24 @@ const Home = () => {
     }
 
     return (
-      <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-        <Link to="/auth">
-          <Button variant="hero" size="lg" className="px-8 py-4 text-lg shadow-warm hover:shadow-glow transition-bounce">
-            <Users className="mr-2 h-5 w-5" />
-            For Dietitians → Sign Up
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Button 
+            size="lg" 
+            onClick={() => navigate('/patient-auth')}
+            className="px-8 py-6 text-lg font-semibold flex-1 sm:flex-none"
+          >
+            I'm a Patient
           </Button>
-        </Link>
-        
-        <Link to="/auth">
-          <Button variant="ghost-light" size="lg" className="px-8 py-4 text-lg">
-            <Leaf className="mr-2 h-5 w-5" />
-            For Patients → Sign Up
+          <Button 
+            variant="outline" 
+            size="lg"
+            onClick={() => navigate('/dietitian-auth')}
+            className="px-8 py-6 text-lg font-semibold bg-white/20 border-white text-white hover:bg-white hover:text-primary flex-1 sm:flex-none"
+          >
+            I'm a Dietitian
           </Button>
-        </Link>
+        </div>
       </div>
     );
   };

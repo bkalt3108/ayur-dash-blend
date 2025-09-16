@@ -7,6 +7,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import PatientAuth from "./pages/PatientAuth";
+import DietitianAuth from "./pages/DietitianAuth";
 import DietitianOnboarding from "./pages/DietitianOnboarding";
 import DietitianDashboard from "./pages/DietitianDashboard";
 import PatientAssessment from "./pages/PatientAssessment";
@@ -25,6 +27,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/patient-auth" element={<PatientAuth />} />
+          <Route path="/dietitian-auth" element={<DietitianAuth />} />
+          
+          {/* Dietitian Routes */}
           <Route 
             path="/dietitian/onboarding" 
             element={
@@ -41,6 +47,8 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          
+          {/* Patient Routes */}
           <Route 
             path="/patient/assessment" 
             element={
@@ -57,6 +65,8 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          
+          {/* General Protected Routes */}
           <Route 
             path="/food-database" 
             element={
@@ -65,6 +75,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

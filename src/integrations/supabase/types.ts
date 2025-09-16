@@ -59,25 +59,40 @@ export type Database = {
       patient_profiles: {
         Row: {
           age: number | null
+          assessment_completed: boolean | null
+          constitution_scores: Json | null
           created_at: string
+          dietary_preferences: Json | null
           gender: string | null
+          health_goals: string[] | null
           id: string
+          prakriti_type: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           age?: number | null
+          assessment_completed?: boolean | null
+          constitution_scores?: Json | null
           created_at?: string
+          dietary_preferences?: Json | null
           gender?: string | null
+          health_goals?: string[] | null
           id?: string
+          prakriti_type?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           age?: number | null
+          assessment_completed?: boolean | null
+          constitution_scores?: Json | null
           created_at?: string
+          dietary_preferences?: Json | null
           gender?: string | null
+          health_goals?: string[] | null
           id?: string
+          prakriti_type?: string | null
           updated_at?: string
           user_id?: string
         }

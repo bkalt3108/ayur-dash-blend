@@ -1,11 +1,11 @@
-import { useState } from "react";
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Leaf, 
   Brain, 
@@ -15,13 +15,15 @@ import {
   ArrowRight,
   ArrowLeft,
   Heart,
-  Moon,
   Utensils,
-  Activity
+  Activity,
+  Home,
+  RefreshCw
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const PatientAssessment = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [assessmentData, setAssessmentData] = useState({
     constitution: {
@@ -31,14 +33,10 @@ const PatientAssessment = () => {
       bodyType: "",
       temperament: ""
     },
-    goals: [],
-    preferences: {
-      spicyFoods: "",
-      mealTiming: "",
-      cookingStyle: ""
-    }
+    healthGoals: {} as Record<string, boolean>,
+    dietaryPreferences: {}
   });
-
+  const [constitutionScores, setConstitutionScores] = useState({ vata: 0, pitta: 0, kapha: 0 });
   const [prakriti, setPrakriti] = useState("");
   const [showResults, setShowResults] = useState(false);
 
@@ -97,7 +95,7 @@ const PatientAssessment = () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     } else {
-      setShowResults(true);
+      handleComplete();
     }
   };
 
@@ -115,6 +113,8 @@ const PatientAssessment = () => {
       if (answer) counts[answer as keyof typeof counts]++;
     });
 
+    setConstitutionScores(counts);
+    
     const dominant = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     
     if (dominant[0][1] === dominant[1][1]) {
@@ -137,38 +137,115 @@ const PatientAssessment = () => {
   const handleGoalToggle = (goalId: string) => {
     setAssessmentData(prev => ({
       ...prev,
-      goals: prev.goals.includes(goalId) 
-        ? prev.goals.filter(g => g !== goalId)
-        : [...prev.goals, goalId]
+      healthGoals: {
+        ...prev.healthGoals,
+        [goalId]: !prev.healthGoals[goalId]
+      }
     }));
   };
 
-  const getDietPlanPreview = () => {
-    const recommendations = {
-      "Vata": {
-        foods: ["Warm, cooked foods", "Sweet fruits like dates", "Ghee and healthy oils", "Warm spices like ginger"],
-        avoid: ["Cold, raw foods", "Dry foods", "Excessive caffeine"],
-        lifestyle: ["Regular meal times", "Warm beverages", "Calming activities"]
-      },
-      "Pitta": {
-        foods: ["Cooling foods", "Sweet, bitter tastes", "Coconut water", "Fresh herbs like cilantro"],
-        avoid: ["Spicy foods", "Excessive heat", "Sour foods"],
-        lifestyle: ["Moderate meal portions", "Cool beverages", "Relaxing activities"]
-      },
-      "Kapha": {
-        foods: ["Light, warm foods", "Pungent spices", "Herbal teas", "Fresh vegetables"],
-        avoid: ["Heavy, oily foods", "Excessive sweets", "Cold drinks"],
-        lifestyle: ["Lighter meals", "Warm drinks", "Active lifestyle"]
+  const handleComplete = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('patient_profiles')
+          .update({
+            assessment_completed: true,
+            prakriti_type: prakriti,
+            constitution_scores: constitutionScores,
+            health_goals: Object.keys(assessmentData.healthGoals).filter(key => assessmentData.healthGoals[key]),
+            dietary_preferences: assessmentData.dietaryPreferences || {}
+          })
+          .eq('user_id', user.id);
+
+        if (updateError) {
+          console.error('Error saving assessment:', updateError);
+        }
+      }
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error completing assessment:', error);
+      setShowResults(true);
+    }
+  };
+
+  const handleRetakeAssessment = () => {
+    setCurrentStep(1);
+    setAssessmentData({
+      constitution: { digestion: "", energy: "", sleep: "", bodyType: "", temperament: "" },
+      healthGoals: {},
+      dietaryPreferences: {}
+    });
+    setPrakriti('');
+    setShowResults(false);
+  };
+
+  useEffect(() => {
+    const checkAssessmentStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('patient_profiles')
+          .select('assessment_completed, prakriti_type, constitution_scores, health_goals')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.assessment_completed) {
+          setPrakriti(profile.prakriti_type || '');
+          setShowResults(true);
+        }
       }
     };
+    
+    checkAssessmentStatus();
+  }, []);
 
-    return recommendations[prakriti as keyof typeof recommendations] || recommendations["Vata"];
-  };
+  if (showResults && prakriti) {
+    return (
+      <div className="min-h-screen bg-gradient-sage p-4 md:p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-4 pb-8">
+              <div className="flex items-center justify-center">
+                <div className="bg-gradient-primary rounded-full p-4">
+                  <CheckCircle className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <div>
+                <CardTitle className="text-3xl font-bold text-sage-800 mb-2">
+                  Assessment Complete!
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Welcome back! Your Ayurvedic constitution is <strong>{prakriti}</strong>
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button onClick={() => navigate('/patient/dashboard')} className="w-full">
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  Go to Dashboard
+                </Button>
+                <Button variant="outline" onClick={handleRetakeAssessment} className="w-full">
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retake Assessment
+                </Button>
+              </div>
+              <Button variant="ghost" onClick={() => navigate('/')} className="w-full">
+                <Home className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="container max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Leaf className="h-8 w-8 text-primary" />
@@ -180,7 +257,6 @@ const PatientAssessment = () => {
 
         {!showResults && (
           <>
-            {/* Progress */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 {steps.map((step) => (
@@ -199,32 +275,30 @@ const PatientAssessment = () => {
               <Progress value={progress} className="h-2" />
             </div>
 
-            {/* Step Content */}
-            <Card className="shadow-warm border-0 bg-card/50 backdrop-blur-sm">
+            <Card className="bg-gradient-to-br from-background to-muted/20 border-0 shadow-xl">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  {React.createElement(steps[currentStep - 1].icon, { className: "h-6 w-6 text-primary" })}
+                <CardTitle className="text-2xl font-bold text-center">
                   {steps[currentStep - 1].title}
                 </CardTitle>
-                <p className="text-muted-foreground">{steps[currentStep - 1].description}</p>
+                <CardDescription className="text-center text-lg">
+                  {steps[currentStep - 1].description}
+                </CardDescription>
               </CardHeader>
-              
-              <CardContent className="space-y-8">
+              <CardContent>
                 {currentStep === 1 && (
                   <div className="space-y-8">
-                    {constitutionQuestions.map((question) => (
+                    {constitutionQuestions.map((question, index) => (
                       <div key={question.id} className="space-y-4">
                         <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
-                        <RadioGroup 
+                        <RadioGroup
                           value={assessmentData.constitution[question.id as keyof typeof assessmentData.constitution]}
                           onValueChange={(value) => handleConstitutionAnswer(question.id, value)}
-                          className="space-y-3"
                         >
                           {question.options.map((option) => (
-                            <div key={option.value} className="flex items-start space-x-3 p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-smooth">
+                            <div key={option.value} className="flex items-start space-x-2 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
                               <RadioGroupItem value={option.value} id={`${question.id}-${option.value}`} className="mt-1" />
                               <div className="flex-1">
-                                <Label htmlFor={`${question.id}-${option.value}`} className="text-base font-medium cursor-pointer">
+                                <Label htmlFor={`${question.id}-${option.value}`} className="font-medium cursor-pointer">
                                   {option.label}
                                 </Label>
                                 <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
@@ -238,35 +312,37 @@ const PatientAssessment = () => {
                 )}
 
                 {currentStep === 2 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4">Select your primary health goals (choose multiple):</h3>
+                  <div className="space-y-6">
+                    <div className="text-center mb-6">
+                      <p className="text-muted-foreground">Select all health goals that apply to you</p>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {healthGoals.map((goal) => (
                         <Card 
                           key={goal.id}
-                          className={`cursor-pointer transition-smooth hover:shadow-soft ${
-                            assessmentData.goals.includes(goal.id) 
-                              ? "border-primary bg-primary/5 shadow-soft" 
-                              : "border-border hover:border-primary/50"
+                          className={`cursor-pointer transition-all duration-200 ${
+                            assessmentData.healthGoals[goal.id]
+                              ? "border-primary bg-primary/5" 
+                              : "border-muted hover:border-primary/50"
                           }`}
                           onClick={() => handleGoalToggle(goal.id)}
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                assessmentData.goals.includes(goal.id)
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
+                          <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                              <div className={`p-3 rounded-lg ${
+                                assessmentData.healthGoals[goal.id] 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "bg-muted"
                               }`}>
                                 <goal.icon className="h-5 w-5" />
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-semibold text-foreground">{goal.label}</h4>
+                                <h4 className="font-semibold mb-1">{goal.label}</h4>
                                 <p className="text-sm text-muted-foreground">{goal.description}</p>
+                                {assessmentData.healthGoals[goal.id] && (
+                                  <Badge variant="secondary" className="mt-2">Selected</Badge>
+                                )}
                               </div>
-                              {assessmentData.goals.includes(goal.id) && (
-                                <CheckCircle className="h-5 w-5 text-primary" />
-                              )}
                             </div>
                           </CardContent>
                         </Card>
@@ -275,173 +351,27 @@ const PatientAssessment = () => {
                   </div>
                 )}
 
-                {currentStep === 3 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-4">How do you prefer your foods?</h3>
-                      <RadioGroup className="space-y-3">
-                        <div className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg">
-                          <RadioGroupItem value="mild" id="mild" />
-                          <Label htmlFor="mild" className="flex-1 cursor-pointer">
-                            <div>
-                              <p className="font-medium">Mild & Cooling</p>
-                              <p className="text-sm text-muted-foreground">Prefer less spicy, cooling foods</p>
-                            </div>
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg">
-                          <RadioGroupItem value="moderate" id="moderate" />
-                          <Label htmlFor="moderate" className="flex-1 cursor-pointer">
-                            <div>
-                              <p className="font-medium">Balanced & Moderate</p>
-                              <p className="text-sm text-muted-foreground">Enjoy variety in flavors and temperatures</p>
-                            </div>
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg">
-                          <RadioGroupItem value="warm-spicy" id="warm-spicy" />
-                          <Label htmlFor="warm-spicy" className="flex-1 cursor-pointer">
-                            <div>
-                              <p className="font-medium">Warm & Spicy</p>
-                              <p className="text-sm text-muted-foreground">Love warming spices and cooked foods</p>
-                            </div>
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 4 && prakriti && (
-                  <div className="text-center space-y-6">
-                    <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-8">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 mb-6">
-                        <Sparkles className="h-4 w-4 text-primary" />
-                        <span className="text-primary font-semibold">Your Ayurvedic Profile</span>
-                      </div>
-                      
-                      <h3 className="text-3xl font-bold text-foreground mb-2">
-                        Your Prakriti: <span className="text-primary">{prakriti}</span>
-                      </h3>
-                      <p className="text-muted-foreground mb-6">
-                        Based on your responses, we've identified your unique Ayurvedic constitution and created a personalized diet plan.
-                      </p>
-
-                      <div className="grid md:grid-cols-3 gap-4 text-left">
-                        <Card className="shadow-soft">
-                          <CardContent className="p-4">
-                            <h4 className="font-semibold text-accent mb-2">✓ Recommended Foods</h4>
-                            <ul className="text-sm space-y-1 text-muted-foreground">
-                              {getDietPlanPreview().foods.map((food, index) => (
-                                <li key={index}>• {food}</li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card className="shadow-soft">
-                          <CardContent className="p-4">
-                            <h4 className="font-semibold text-warm mb-2">⚠ Foods to Limit</h4>
-                            <ul className="text-sm space-y-1 text-muted-foreground">
-                              {getDietPlanPreview().avoid.map((food, index) => (
-                                <li key={index}>• {food}</li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card className="shadow-soft">
-                          <CardContent className="p-4">
-                            <h4 className="font-semibold text-sage-foreground mb-2">🌿 Lifestyle Tips</h4>
-                            <ul className="text-sm space-y-1 text-muted-foreground">
-                              {getDietPlanPreview().lifestyle.map((tip, index) => (
-                                <li key={index}>• {tip}</li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-
-                    {/* Premium Upgrade */}
-                    <div className="bg-gradient-to-r from-accent/5 to-warm/5 rounded-lg p-6 border border-accent/20">
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <Sparkles className="h-5 w-5 text-accent" />
-                        <span className="font-semibold text-accent">Upgrade to Premium</span>
-                      </div>
-                      <p className="text-muted-foreground mb-4">
-                        Get unlimited access to detailed meal plans, nutrient tracking, and direct consultation with certified Ayurvedic dietitians.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button variant="accent">
-                          Upgrade to Premium - ₹999/month
-                        </Button>
-                        <Link to="/patient/dashboard">
-                          <Button variant="outline">
-                            Continue with Free Plan
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Navigation */}
-                <div className="flex justify-between items-center pt-6 border-t border-border">
-                  <Button 
-                    variant="outline" 
+                <div className="flex justify-between mt-8">
+                  <Button
+                    variant="outline"
                     onClick={handlePrev}
                     disabled={currentStep === 1}
-                    className="flex items-center gap-2"
                   >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4 mr-2" />
                     Previous
                   </Button>
-
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Step {currentStep} of {steps.length}
-                    </p>
-                  </div>
-
-                  <Button 
-                    variant="default" 
+                  <Button
                     onClick={handleNext}
-                    disabled={currentStep === 1 && Object.values(assessmentData.constitution).filter(Boolean).length < 3}
-                    className="flex items-center gap-2"
+                    disabled={currentStep === 1 && Object.values(assessmentData.constitution).filter(Boolean).length < 3 || 
+                             currentStep === 2 && !Object.values(assessmentData.healthGoals).some(Boolean)}
                   >
-                    {currentStep === steps.length ? "Generate Plan" : "Next"}
-                    <ArrowRight className="h-4 w-4" />
+                    {currentStep === steps.length ? 'Complete Assessment' : 'Next'}
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </>
-        )}
-
-        {/* Results View */}
-        {showResults && (
-          <div className="text-center space-y-8">
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-12">
-              <CheckCircle className="h-16 w-16 mx-auto mb-6 text-primary animate-gentle-bounce" />
-              <h2 className="text-4xl font-bold text-foreground mb-4">Your Personalized Diet Plan is Ready!</h2>
-              <p className="text-xl text-muted-foreground mb-8">
-                Based on your {prakriti} constitution and health goals, we've created a custom Ayurvedic nutrition plan.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="hero" size="lg">
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  View Complete Plan
-                </Button>
-                <Link to="/">
-                  <Button variant="outline" size="lg">
-                    Back to Home
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>
